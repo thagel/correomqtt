@@ -15,7 +15,7 @@
 
 
     <properties>
-        <plugin.id>${artifactId}</plugin.id>
+        <plugin.id>contains-string-validator</plugin.id>
         <plugin.name>Contains String Validator Plugin</plugin.name>
         <plugin.provider>Exxeta AG</plugin.provider>
         <plugin.class />

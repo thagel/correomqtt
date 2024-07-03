@@ -15,7 +15,7 @@
     </parent>
 
     <properties>
-        <plugin.id>${artifactId}</plugin.id>
+        <plugin.id>save-manipulator</plugin.id>
         <plugin.name>Save Manipulator Plugin</plugin.name>
         <plugin.provider>Exxeta AG</plugin.provider>
         <plugin.class>org.correomqtt.plugin.save.SavePlugin</plugin.class>
