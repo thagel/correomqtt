@@ -141,7 +141,6 @@ jobs:
         run: |
           jpackage \
             --type app-image \
-            --output app-image-x64 \
             -d dist \
             -i target \
             -n CorreoMQTT_amd64 \
@@ -201,7 +200,6 @@ jobs:
         run: |
           jpackage \
             --type app-image \
-            --output app-image-arm \
             -d dist \
             -i target \
             -n CorreoMQTT_arm64 \
