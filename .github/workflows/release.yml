@@ -143,7 +143,7 @@ jobs:
             --type app-image \
             -d dist \
             -i target \
-            -n CorreoMQTT_amd64 \
+            -n CorreoMQTT \
             --main-jar correomqtt-${{steps.version.outputs.full_without_prefix}}.jar \
             --app-version 1.${{steps.version.outputs.minor}}.${{steps.version.outputs.patch}} \
             --icon ./gui/src/main/deploy/package/Icon.icns
@@ -155,14 +155,14 @@ jobs:
           security default-keychain -d user -s /tmp/correomqtt-db
           security unlock-keychain -p 1234 /tmp/correomqtt-db
           security list-keychains -s /tmp/correomqtt-db
-          codesign -h -fs correomqtt.org --keychain /tmp/correomqtt-db --force dist/CorreoMQTT_amd64.app
+          codesign -h -fs correomqtt.org --keychain /tmp/correomqtt-db --force dist/CorreoMQTT.app
 
           jpackage \
             --type dmg \
             -d dist_mac \
-            -n CorreoMQTT \
+            -n CorreoMQTT_amd64 \
             --app-version ${{steps.version.outputs.full_without_prefix}} \
-            --app-image dist/CorreoMQTT_amd64.app
+            --app-image dist/CorreoMQTT.app
       - name: Release 
         uses: xresloader/upload-to-github-release@v1.3.2
         env:
@@ -202,7 +202,7 @@ jobs:
             --type app-image \
             -d dist \
             -i target \
-            -n CorreoMQTT_arm64 \
+            -n CorreoMQTT \
             --main-jar correomqtt-${{steps.version.outputs.full_without_prefix}}.jar \
             --app-version 1.${{steps.version.outputs.minor}}.${{steps.version.outputs.patch}} \
             --icon ./gui/src/main/deploy/package/Icon.icns
@@ -214,14 +214,14 @@ jobs:
           security default-keychain -d user -s /tmp/correomqtt-db
           security unlock-keychain -p 1234 /tmp/correomqtt-db
           security list-keychains -s /tmp/correomqtt-db
-          codesign -h -fs correomqtt.org --keychain /tmp/correomqtt-db --force dist/CorreoMQTT_arm64.app
+          codesign -h -fs correomqtt.org --keychain /tmp/correomqtt-db --force dist/CorreoMQTT.app
 
           jpackage \
             --type dmg \
             -d dist_mac \
-            -n CorreoMQTT \
+            -n CorreoMQTT_arm64 \
             --app-version ${{steps.version.outputs.full_without_prefix}} \
-            --app-image dist/CorreoMQTT_arm64.app
+            --app-image dist/CorreoMQTT.app
       - name: Release 
         uses: xresloader/upload-to-github-release@v1.3.2
         env:
