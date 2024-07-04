@@ -162,7 +162,7 @@ jobs:
             -d dist_mac \
             -n CorreoMQTT \
             --app-version ${{steps.version.outputs.full_without_prefix}} \
-            --app-image dist/CorreoMQTT.app
+            --app-image dist/CorreoMQTT_amd64.app
       - name: Release 
         uses: xresloader/upload-to-github-release@v1.3.2
         env:
@@ -221,7 +221,7 @@ jobs:
             -d dist_mac \
             -n CorreoMQTT \
             --app-version ${{steps.version.outputs.full_without_prefix}} \
-            --app-image dist/CorreoMQTT.app
+            --app-image dist/CorreoMQTT_arm64.app
       - name: Release 
         uses: xresloader/upload-to-github-release@v1.3.2
         env:
