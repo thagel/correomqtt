@@ -155,7 +155,7 @@ jobs:
           security default-keychain -d user -s /tmp/correomqtt-db
           security unlock-keychain -p 1234 /tmp/correomqtt-db
           security list-keychains -s /tmp/correomqtt-db
-          codesign -h -fs correomqtt.org --keychain /tmp/correomqtt-db --force dist/CorreoMQTT.app
+          codesign -h -fs correomqtt.org --keychain /tmp/correomqtt-db --force dist/CorreoMQTT_amd64.app
 
           jpackage \
             --type dmg \
@@ -214,7 +214,7 @@ jobs:
           security default-keychain -d user -s /tmp/correomqtt-db
           security unlock-keychain -p 1234 /tmp/correomqtt-db
           security list-keychains -s /tmp/correomqtt-db
-          codesign -h -fs correomqtt.org --keychain /tmp/correomqtt-db --force dist/CorreoMQTT.app
+          codesign -h -fs correomqtt.org --keychain /tmp/correomqtt-db --force dist/CorreoMQTT_arm64.app
 
           jpackage \
             --type dmg \
