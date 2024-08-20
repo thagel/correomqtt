@@ -37,7 +37,6 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
-import java.sql.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -111,16 +110,20 @@ public class PluginManager extends JarPluginManager {
             try {
                 LOGGER.info("Read bundled plugins '{}'", bundledPluginUrl);
                 BundledPluginList bundledPluginList = new ObjectMapper().readValue(new URL(bundledPluginUrl), BundledPluginList.class);
-                String version = VersionUtils.getVersion().trim();
-                BundledPluginList.BundledPlugins bundledPluginsByVersion = bundledPluginList.getVersions().get(version);
+                String versionSharp = VersionUtils.getVersion();
+                String versionUnsharp = VersionUtils.getMajorMinorPatch(versionSharp);
+                BundledPluginList.BundledPlugins bundledPluginsByVersion = bundledPluginList.getVersions().get(versionSharp);
+                if(bundledPluginsByVersion == null) {
+                    bundledPluginsByVersion = bundledPluginList.getVersions().get(versionUnsharp);
+                }
                 if (bundledPluginsByVersion == null) {
-                    LOGGER.warn("No bundled plugins found for version '{}'", version);
+                    LOGGER.warn("No bundled plugins found for version '{}'", versionSharp);
                     bundledPlugins = BundledPluginList.BundledPlugins.builder().build();
                 } else {
                     LOGGER.info("Found {} bundled plugins and {} plugins to be removed for version '{}'.",
                             bundledPluginsByVersion.getInstall().size(),
                             bundledPluginsByVersion.getUninstall().size(),
-                            version);
+                            versionSharp);
                     bundledPlugins = bundledPluginsByVersion;
                 }
                 return bundledPluginsByVersion;
