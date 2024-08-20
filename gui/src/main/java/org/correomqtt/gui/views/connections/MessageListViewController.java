@@ -7,13 +7,7 @@ import javafx.collections.transformation.FilteredList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
-import javafx.scene.control.MenuButton;
-import javafx.scene.control.SplitPane;
-import javafx.scene.control.TextField;
-import javafx.scene.control.ToggleButton;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
@@ -24,11 +18,7 @@ import javafx.stage.Stage;
 import org.controlsfx.control.textfield.TextFields;
 import org.correomqtt.core.CoreManager;
 import org.correomqtt.core.connection.ConnectionStateChangedEvent;
-import org.correomqtt.core.model.ControllerType;
-import org.correomqtt.core.model.LabelType;
-import org.correomqtt.core.model.MessageListViewConfig;
-import org.correomqtt.core.model.MessageType;
-import org.correomqtt.core.model.PublishStatus;
+import org.correomqtt.core.model.*;
 import org.correomqtt.di.Assisted;
 import org.correomqtt.di.DefaultBean;
 import org.correomqtt.di.Inject;
@@ -87,6 +77,10 @@ public class MessageListViewController extends BaseConnectionController implemen
     Button showDetailsButton;
     @FXML
     private VBox messagesVBox;
+    @FXML
+    protected ToggleButton automaticScrollButton;
+    @FXML
+    private ScrollPane scrollPane;
     private ObservableList<MessagePropertiesDTO> messages;
     private FilteredList<MessagePropertiesDTO> filteredMessages;
     private DetailViewController detailViewController;
@@ -155,6 +149,8 @@ public class MessageListViewController extends BaseConnectionController implemen
 
         splitPane.widthProperty().addListener((observable, oldValue, newValue) -> Platform.runLater(() -> calculateDetailView(newValue)));
 
+        automaticScrollButton.setSelected(true);
+
         messageSearchTextField.textProperty().addListener((observable, oldValue, newValue) -> searchInMessages(newValue));
     }
 
@@ -163,6 +159,7 @@ public class MessageListViewController extends BaseConnectionController implemen
         MessageListContextMenu contextMenu = messageListContextMenuFactory.create(this);
         cell.setContextMenu(contextMenu);
         cell.itemProperty().addListener((observable, oldValue, newValue) -> contextMenu.setObject(newValue));
+        cell.setOnMousePressed(event -> onCellPressed(cell));
         cell.setOnMouseClicked(event -> onCellClicked(event, cell.getItem()));
         cell.selectedProperty().addListener((observable, oldValue, newValue) -> {
             if (Boolean.TRUE.equals(newValue)) {
@@ -173,7 +170,18 @@ public class MessageListViewController extends BaseConnectionController implemen
                 }
             }
         });
+        cell.setOnScrollStarted(event -> onScrollStarted(cell));
         return cell;
+    }
+
+    private void onScrollStarted(MessageViewCell cell) {
+        listView.getFocusModel().focus(-1);
+        cell.selectedProperty();
+    }
+
+    private void onCellPressed(MessageViewCell cell) {
+        listView.getFocusModel().focus(cell.getIndex());
+        listView.scrollTo(listView.getFocusModel().getFocusedIndex());
     }
 
     public void calculateDetailView(Number newValue) {
@@ -205,11 +213,13 @@ public class MessageListViewController extends BaseConnectionController implemen
 
     private void onCellClicked(MouseEvent event, MessagePropertiesDTO messageDTO) {
         if (messageDTO != null && event.getButton().equals(MouseButton.PRIMARY) && event.getClickCount() == 2) {
+            LOGGER.info("Message selected in list: {}: {}", (messageDTO != null) ? messageDTO.getTopic() : null, getConnectionId());
+
             detailViewControllerFactory.create(messageDTO, getConnectionId(), this, false).showAsDialog();
         }
 
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Message selected in list: {}: {}", (messageDTO != null) ? messageDTO.getTopic() : null, getConnectionId());
+            LOGGER.info("Message selected in list: {}: {}", (messageDTO != null) ? messageDTO.getTopic() : null, getConnectionId());
         }
     }
 
@@ -349,6 +359,9 @@ public class MessageListViewController extends BaseConnectionController implemen
         if (messageDTO.getMessageType().equals(MessageType.INCOMING)) {
             addMessage(messageDTO);
         }
+        if (listView.getFocusModel().getFocusedIndex() != -1) {
+            listView.scrollTo(listView.getFocusModel().getFocusedIndex());
+        }
     }
 
     private void addMessage(MessagePropertiesDTO messageDTO) {
@@ -421,6 +434,26 @@ public class MessageListViewController extends BaseConnectionController implemen
     @FXML
     private void showDetailsOfMessage() {
         detailViewControllerFactory.create(getSelectedMessage(), getConnectionId(), this, false).showAsDialog();
+    }
+
+    @FXML
+    private void toggleAutomaticScrolling() {
+        if (automaticScrollButton.isSelected()) {
+            enableScrolling();
+        } else {
+            disableScrolling();
+        }
+    }
+
+    private void enableScrolling() {
+        automaticScrollButton.setSelected(true);
+        listView.getFocusModel().focus(-1);
+        listView.scrollTo(0);
+    }
+
+    @FXML
+    private void disableScrolling() {
+        automaticScrollButton.setSelected(false);
     }
 
     public void cleanUp() {
