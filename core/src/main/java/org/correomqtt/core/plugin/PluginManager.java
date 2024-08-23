@@ -94,7 +94,6 @@ public class PluginManager extends JarPluginManager {
             if (bundledPluginUrl == null) {
                 bundledPluginUrl = VendorConstants.getBundledPluginsUrl();
             }
-
             if (bundledPluginUrl.contains("{version}")) {
                 String latestBundled = bundledPluginUrl.replace("{version}", "latest");
                 if (checkUrl(latestBundled)) {
@@ -103,18 +102,30 @@ public class PluginManager extends JarPluginManager {
                     String versionBundled = bundledPluginUrl.replace("{version}", "v" + VersionUtils.getVersion());
                     if (checkUrl(versionBundled)) {
                         bundledPluginUrl = versionBundled;
+                    } else {
+                        // todo use local stored bundled
                     }
                 }
             }
-
             try {
                 LOGGER.info("Read bundled plugins '{}'", bundledPluginUrl);
                 BundledPluginList bundledPluginList = new ObjectMapper().readValue(new URL(bundledPluginUrl), BundledPluginList.class);
-                BundledPluginList.BundledPlugins bundledPluginsByVersion = bundledPluginList.getVersions().get(VersionUtils.getVersion().trim());
-                if (bundledPluginsByVersion == null) {
-                    return BundledPluginList.BundledPlugins.builder().build();
+                String versionSharp = VersionUtils.getVersion();
+                String versionUnsharp = VersionUtils.getMajorMinorPatch(versionSharp);
+                BundledPluginList.BundledPlugins bundledPluginsByVersion = bundledPluginList.getVersions().get(versionSharp);
+                if(bundledPluginsByVersion == null) {
+                    bundledPluginsByVersion = bundledPluginList.getVersions().get(versionUnsharp);
                 }
-                bundledPlugins = bundledPluginsByVersion;
+                if (bundledPluginsByVersion == null) {
+                    LOGGER.warn("No bundled plugins found for version '{}'", versionSharp);
+                    bundledPlugins = BundledPluginList.BundledPlugins.builder().build();
+                } else {
+                    LOGGER.info("Found {} bundled plugins and {} plugins to be removed for version '{}'.",
+                            bundledPluginsByVersion.getInstall().size(),
+                            bundledPluginsByVersion.getUninstall().size(),
+                            versionSharp);
+                    bundledPlugins = bundledPluginsByVersion;
+                }
                 return bundledPluginsByVersion;
             } catch (IOException e) {
                 LOGGER.warn("Unable to load bundled plugin list from {}.", bundledPluginUrl);
@@ -183,11 +194,9 @@ public class PluginManager extends JarPluginManager {
 
     public List<? extends OutgoingMessageHook<?>> getOutgoingMessageHooks() {
         List<HooksDTO.Extension> hooks = pluginConfigProvider.getOutgoingMessageHooks();
-
-        if(hooks == null){
+        if (hooks == null) {
             return Collections.emptyList();
         }
-
         return hooks
                 .stream()
                 .map(extensionDefinition -> {
@@ -207,11 +216,9 @@ public class PluginManager extends JarPluginManager {
 
     public List<? extends IncomingMessageHook<?>> getIncomingMessageHooks() {
         List<HooksDTO.Extension> hooks = pluginConfigProvider.getIncomingMessageHooks();
-
-        if(hooks == null){
+        if (hooks == null) {
             return Collections.emptyList();
         }
-
         return hooks
                 .stream()
                 .map(extensionDefinition -> {
@@ -231,11 +238,9 @@ public class PluginManager extends JarPluginManager {
 
     public List<MessageValidatorHook<?>> getMessageValidators(String topic) {
         List<HooksDTO.MessageValidator> validators = pluginConfigProvider.getMessageValidators();
-
-        if(validators == null){
+        if (validators == null) {
             return Collections.emptyList();
         }
-
         return validators.stream()
                 .filter(validatorDefinition -> validatorDefinition.getTopic().equals(topic))
                 .map(validatorDefinition -> validatorDefinition.getExtensions().stream()
