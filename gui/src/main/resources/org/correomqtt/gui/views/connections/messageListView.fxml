@@ -89,7 +89,7 @@
                     </HBox.margin>
                 </IconToggleButton>
             </HBox>
-            <ListView fx:id="listView" styleClass="noBorder" VBox.vgrow="ALWAYS" onMousePressed="#disableScrolling" onScroll="#disableScrolling">
+            <ListView fx:id="listView" styleClass="noBorder" VBox.vgrow="ALWAYS">
             </ListView>
         </VBox>
     </SplitPane>
