@@ -434,7 +434,6 @@ public class MessageListViewController extends BaseConnectionController implemen
 
     @FXML
     private void toggleAutomaticScrolling() {
-        LOGGER.info("toggleAutomaticScrolling");
         if (automaticScrollButton.isSelected()) {
             enableAutomaticScrolling();
         } else {
@@ -499,7 +498,6 @@ public class MessageListViewController extends BaseConnectionController implemen
 
             if (!isUserScrolling) {
                 isUserScrolling = true;
-                System.out.println("User started scrolling via mouse wheel");
                 // Reset the scrolling state after a delay
                 pause.playFromStart();
                 disableAutomaticScrolling();
@@ -533,7 +531,6 @@ public class MessageListViewController extends BaseConnectionController implemen
         public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
             if (!isUserScrolling) {
                 isUserScrolling = true;
-                System.out.println("User started scrolling via scrollbar");
                 pause.playFromStart();
                 disableAutomaticScrolling();
             }
